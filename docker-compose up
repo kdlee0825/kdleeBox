@@ -1,0 +1,94 @@
+Docker-compose 파일올리기
+
+도커 컴포즈 파일을 올려보자 
+
+도커 컴포즈 파일이 있는 폴더로 들어간다.
+
+명령어에 sudo docker-compose.yml up -d 를 입력해준다
+Docker-compose.yml up은 파일을 올리겠다는 명령어고 -d는 올린후 터미널을 우리가 사용할 수 있게한다. 잘모르겟으면 둘다 해봐라 그러면 바로 알 수 있다.
+a
+Docker-compose down 이 명령어는 올라갔던 서비스들을 내린다. 
+
+도커에 올라간 컨테이너들을 확인하려면 sudo docker ps 를 입력하면된다.
+
+인터넷 주소창에 0.0.0.0:5601을 입력하면 키바나가 켜진다. 키바나가 안켜지면 문제가 있는것 바로는 안켜진다 조금 기다려보자
+
+이제 잘 올라갔으면 데이터를 보내봐야겠쥬? 
+
+같이 동봉한 test.py 파일을 실행한다. 
+
+명령어는 python3 test.py
+
+파이썬이 없다면 
+
+
+sudo apt-get update
+$ sudo apt-get dist-upgrade
+$ sudo apt-get autoremove
+$ sudo apt-get install python3
+$ sudo apt-get install python3-pip
+$ sudo pip3 install --upgrade pip
+
+
+카프카 라이브러리를 설치해야한다 
+
+Pip3 install kafka 
+
+이후 python3 test.py
+
+이러면 하나씩 보낼것이다. 
+
+
+
+
+
+
+
+
+
+# coding: utf-8
+
+# In[ ]:
+
+
+import sys
+import json
+from kafka import KafkaProducer
+from kafka.errors import KafkaError
+import csv
+import pandas
+import time
+
+
+producer = KafkaProducer(bootstrap_servers=["0.0.0.0:9092"])
+topicName="test-topic"
+
+def on_send_success(record_metadata):
+    print(record_metadata.topic)
+    print(record_metadata.partition)
+    print(record_metadata.offset)
+
+
+def on_send_error(excp):
+    log.error('I am an errback', exc_info=excp)
+
+with open('/home/kd/data/Out_1.json')as json_file:
+    test_data= json.load(json_file)
+
+for i in range (len(test_data)):
+    msg=test_data[i]
+    time.sleep(0.5)
+    producer.send(topicName, json.dumps(msg).encode('ascii')).add_callback(on_send_success).add_errback(on_send_error)
+    print("gg")
+    producer.flush()
+    print("final")
+
+보낼려면 Out_1.json 이 잇어야 하는데 만드는 방법은 나중에 알려줌..
+
+이것은 나중에 자세히 추가할것
+
+키바나로 인덱스 만들어주고 해당 인덱스로 데이터가 쑥쑥 들어오는것을 확인할 수 있다. 
+
+끝낫다 우리는 ELK 구축을 완료하였다. 
+참쉽쥬??
+
